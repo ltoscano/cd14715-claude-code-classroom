@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 12px; }
+    .summary {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 2em; font-weight: bold; color: #3498db; }
+    .metric-label { color: #6c757d; font-size: 0.9em; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 12px; margin: 8px 0; border-radius: 4px; background: white; }
+    .rec-critical { border-left: 4px solid #e74c3c; }
+    .rec-high { border-left: 4px solid #f39c12; }
+    .rec-medium { border-left: 4px solid #3498db; }
+    .rec-low { border-left: 4px solid #27ae60; }
+    .priority { font-weight: bold; margin-right: 8px; }
+    .rec-critical .priority { color: #e74c3c; }
+    .rec-high .priority { color: #f39c12; }
+    .rec-medium .priority { color: #3498db; }
+    .rec-low .priority { color: #27ae60; }
+    footer { text-align: center; color: #6c757d; margin-top: 32px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Code Review Report</h1>
+  
+  <div class="summary">
+    <div class="metric">
+      <div class="metric-value">32</div>
+      <div class="metric-label">Overall Score</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">1</div>
+      <div class="metric-label">Files Reviewed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Critical Issues</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">23</div>
+      <div class="metric-label">Tests Needed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">10</div>
+      <div class="metric-label">Refactorings</div>
+    </div>
+  </div>
+
+  <h2>🎯 Top Recommendations</h2>
+  <ul>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security - PCI-DSS Compliance</strong>: The code handles raw payment card data (card numbers and CVV) in plain text, violating PCI-DSS compliance requirements. This creates severe security and legal risks. The application must never process, store, or log sensitive payment card information directly.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Payment Gateway Integration</strong>: Replace the current payment processing implementation with a PCI-compliant payment gateway (Stripe, PayPal, Braintree). Use tokenized payment methods where sensitive card data is handled client-side by the gateway's SDK, and only payment tokens/method IDs reach your server. This is the industry-standard approach for handling payments securely.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Test Coverage - Payment Processing</strong>: Zero test coverage for critical payment and subscription logic represents an unacceptable risk. Financial transactions require comprehensive test coverage to prevent revenue loss, customer billing errors, and unauthorized access. Create src/premium.test.ts with unit tests for all payment flows, validation logic, pricing calculations, and error handling paths.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Transaction Atomicity</strong>: The payment flow lacks database transaction management. If subscription upgrade fails after charging the card, customers are charged without receiving service. Wrap the entire processPremiumPayment flow in a database transaction (BEGIN/COMMIT/ROLLBACK) to ensure atomicity, or implement compensating actions to refund charges if subscription upgrade fails.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Error Handling - JSON Parsing</strong>: Multiple functions parse JSON from the database without error handling (hasFeatureAccess, getUserSubscription). Malformed JSON data will crash these functions and deny service to all users. Add try-catch blocks with graceful fallbacks (e.g., empty arrays for features) and error logging to handle corrupted database data.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    </ul>
+
+  <footer>
+    Generated at 2026-11-17T12:29:41.527Z • Duration: 440698ms
+  </footer>
+</body>
+</html>
